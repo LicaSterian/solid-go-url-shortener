@@ -32,8 +32,8 @@ func (u *URLShortener) Get(short string) (string, error) {
 
 func main() {
 	inMemoryStorage := storage.NewInMemoryStorage()
-	generator := &urlshortener.RandomURLGenerator{}
-	service := NewURLShortener(inMemoryStorage, generator)
+	sequentialURLGenerator := &urlshortener.SequentialURLGenerator{}
+	service := NewURLShortener(inMemoryStorage, sequentialURLGenerator)
 
 	short := service.Shorten("https://example.com")
 	fmt.Println("Shortened URL:", short)
