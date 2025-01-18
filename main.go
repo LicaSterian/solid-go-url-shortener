@@ -3,15 +3,16 @@ package main
 import (
 	"fmt"
 
+	"solid-go-url-shortener/storage"
 	"solid-go-url-shortener/urlshortener"
 )
 
 type URLShortener struct {
-	storage   urlshortener.URLStorage
+	storage   storage.Storage
 	generator urlshortener.URLGenerator
 }
 
-func NewURLShortener(storage urlshortener.URLStorage, generator urlshortener.URLGenerator) *URLShortener {
+func NewURLShortener(storage storage.Storage, generator urlshortener.URLGenerator) *URLShortener {
 	return &URLShortener{storage: storage, generator: generator}
 }
 
@@ -30,9 +31,9 @@ func (u *URLShortener) Get(short string) (string, error) {
 }
 
 func main() {
-	storage := urlshortener.NewInMemoryStorage()
+	inMemoryStorage := storage.NewInMemoryStorage()
 	generator := &urlshortener.RandomURLGenerator{}
-	service := NewURLShortener(storage, generator)
+	service := NewURLShortener(inMemoryStorage, generator)
 
 	short := service.Shorten("https://example.com")
 	fmt.Println("Shortened URL:", short)

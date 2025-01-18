@@ -1,8 +1,8 @@
-package urlshortener
+package storage
 
 import "sync"
 
-type URLStorage interface {
+type Storage interface {
 	Save(short string, url string)
 	Get(short string) (string, bool)
 }
@@ -12,7 +12,7 @@ type InMemoryStorage struct {
 	mu      sync.Mutex
 }
 
-func NewInMemoryStorage() *InMemoryStorage {
+func NewInMemoryStorage() Storage {
 	return &InMemoryStorage{
 		mapping: make(map[string]string),
 	}
