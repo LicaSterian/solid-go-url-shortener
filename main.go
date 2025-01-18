@@ -1,45 +1,38 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"math/rand"
-	"sync"
+
+	"solid-go-url-shortener/urlshortener"
 )
 
 type URLShortener struct {
-	mapping map[string]string
-	mu      sync.Mutex
+	storage   urlshortener.URLStorage
+	generator urlshortener.URLGenerator
 }
 
-func NewURLShortener() *URLShortener {
-	return &URLShortener{
-		mapping: make(map[string]string),
-	}
+func NewURLShortener(storage urlshortener.URLStorage, generator urlshortener.URLGenerator) *URLShortener {
+	return &URLShortener{storage: storage, generator: generator}
 }
 
 func (u *URLShortener) Shorten(url string) string {
-	u.mu.Lock()
-	defer u.mu.Unlock()
-
-	short := fmt.Sprintf("%06d", rand.Intn(1000000))
-	u.mapping[short] = url
+	short := u.generator.Generate()
+	u.storage.Save(short, url)
 	return short
 }
 
 func (u *URLShortener) Get(short string) (string, error) {
-	u.mu.Lock()
-	defer u.mu.Unlock()
-
-	url, exists := u.mapping[short]
+	url, exists := u.storage.Get(short)
 	if !exists {
-		return "", errors.New("short URL not found")
+		return "", fmt.Errorf("short URL not found")
 	}
 	return url, nil
 }
 
 func main() {
-	service := NewURLShortener()
+	storage := urlshortener.NewInMemoryStorage()
+	generator := &urlshortener.RandomURLGenerator{}
+	service := NewURLShortener(storage, generator)
 
 	short := service.Shorten("https://example.com")
 	fmt.Println("Shortened URL:", short)
